@@ -1,33 +1,59 @@
-from flask import Flask, jsonify
-from db_connection import get_db_connection
+from flask import Blueprint, Response
+import json
+from db_connection import cursor
 
-app = Flask(__name__)
+app_routes = Blueprint('app_routes', __name__)
 
-@app.route("/")
-def home():
-    return "Chào mừng đến với API Tuyển Sinh!"
-
-def fetch_all(query):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(query)
+@app_routes.route("/universities")
+def get_universities():
+    cursor.execute("SELECT * FROM UNIVERSITIES")
     rows = cursor.fetchall()
     columns = [col[0] for col in cursor.description]
-    conn.close()
-    return [dict(zip(columns, row)) for row in rows]
+    data = [dict(zip(columns, row)) for row in rows]
+    json_data = json.dumps(data, ensure_ascii=False)
+    return Response(json_data, content_type="application/json; charset=utf-8")
 
-@app.route("/universities")
-def get_universities():
-    return jsonify(fetch_all("SELECT * FROM UNIVERSITIES"))
 
-@app.route("/majors")
+@app_routes.route("/majors")
 def get_majors():
-    return jsonify(fetch_all("SELECT * FROM MAJORS"))
+    cursor.execute("SELECT * FROM MAJORS")
+    rows = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
+    json_data = json.dumps(data, ensure_ascii=False)
+    return Response(json_data, content_type="application/json; charset=utf-8")
 
-@app.route("/exam_groups")
+
+@app_routes.route("/exam_groups")
 def get_exam_groups():
-    return jsonify(fetch_all("SELECT * FROM EXAM_GROUPS"))
+    cursor.execute("SELECT * FROM EXAM_GROUPS")
+    rows = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]
+    data = [dict(zip(columns, row)) for row in rows]
+    json_data = json.dumps(data, ensure_ascii=False)
+    return Response(json_data, content_type="application/json; charset=utf-8")
 
-@app.route("/admission_scores")
+
+from datetime import datetime
+
+@app_routes.route("/admission_scores")
 def get_admission_scores():
-    return jsonify(fetch_all("SELECT * FROM ADMISSION_SCORES"))
+    cursor.execute("SELECT * FROM ADMISSION_SCORES")
+    rows = cursor.fetchall()
+    columns = [col[0] for col in cursor.description]
+
+    data = []
+    for row in rows:
+        row_dict = dict(zip(columns, row))
+        # Convert datetime to string
+        for key, value in row_dict.items():
+            if isinstance(value, datetime):
+                row_dict[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+        data.append(row_dict)
+
+    json_data = json.dumps(data, ensure_ascii=False)
+    return Response(json_data, content_type="application/json; charset=utf-8")
+
+@app_routes.route("/")
+def home():
+    return "Welcome to Tuyển Sinh API!"
