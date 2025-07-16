@@ -3,6 +3,10 @@ from db_connection import get_db_connection
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "Chào mừng đến với API Tuyển Sinh!"
+
 def fetch_all(query):
     conn = get_db_connection()
     cursor = conn.cursor()
