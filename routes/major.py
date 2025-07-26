@@ -1,14 +1,12 @@
-
 from flask import Blueprint, jsonify
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from urllib.parse import quote_plus  
+from urllib.parse import quote_plus
 
-from models.exam_group import ExamGroup
-from schemas.exam_group import ExamGroupResponse
+from models.major import Major
+from schemas.major import MajorResponse
 
-exam_group_bp = Blueprint("exam_group", __name__)
-
+major_bp = Blueprint("major", __name__)
 
 connection_string = (
     "Driver={ODBC Driver 17 for SQL Server};"
@@ -17,22 +15,18 @@ connection_string = (
     "Trusted_Connection=yes;"
 )
 
-
 engine = create_engine(
     "mssql+pyodbc:///?odbc_connect=" + quote_plus(connection_string),
     echo=True
 )
-
-
 SessionLocal = sessionmaker(bind=engine)
 
-
-@exam_group_bp.route("/exam_groups_orm", methods=["GET"])
-def get_exam_groups():
+@major_bp.route("/majors", methods=["GET"])
+def get_majors():
     session = SessionLocal()
     try:
-        exam_groups = session.query(ExamGroup).all()
-        result = [ExamGroupResponse.from_orm(eg).dict() for eg in exam_groups]
+        majors = session.query(Major).all()
+        result = [MajorResponse.from_orm(m).dict() for m in majors]
         return jsonify(result)
     finally:
         session.close()
