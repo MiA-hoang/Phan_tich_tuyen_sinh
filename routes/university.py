@@ -1,3 +1,4 @@
+
 from flask import Blueprint, jsonify, request
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -7,7 +8,15 @@ from models.university import University
 from schemas.university import UniversityResponse
 from http import HTTPStatus
 
-university_bp = Blueprint("university", __name__)
+from flask import Blueprint, request, Response
+import json
+from database import db
+from models.university import University
+from schemas.university import UniversityResponseSchema, UniversityCreateSchema, UniversityUpdateSchema
+
+
+university_bp = Blueprint('university_bp', __name__)
+
 
 connection_string = (
     "Driver={ODBC Driver 17 for SQL Server};"
@@ -118,3 +127,36 @@ def delete_university(university_id):
         return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
     finally:
         session.close()
+
+@university_bp.route("/", methods=["GET"])
+def get_universities():
+    universities = University.query.all()
+    data = UniversityResponseSchema(many=True).dump(universities)
+    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+
+@university_bp.route("/", methods=["POST"])
+def create_university():
+    data = UniversityCreateSchema().load(request.json)
+    university = University(**data)
+    db.session.add(university)
+    db.session.commit()
+    result = UniversityResponseSchema().dump(university)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json"), 201
+
+@university_bp.route("/<string:university_id>", methods=["PUT"])
+def update_university(university_id):
+    university = University.query.get_or_404(university_id)
+    data = UniversityUpdateSchema().load(request.json)
+    for key, value in data.items():
+        setattr(university, key, value)
+    db.session.commit()
+    result = UniversityResponseSchema().dump(university)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json")
+
+@university_bp.route("/<string:university_id>", methods=["DELETE"])
+def delete_university(university_id):
+    university = University.query.get_or_404(university_id)
+    db.session.delete(university)
+    db.session.commit()
+    return "", 204
+

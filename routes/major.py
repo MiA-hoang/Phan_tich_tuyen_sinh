@@ -1,3 +1,4 @@
+
 from flask import Blueprint, jsonify, request
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -7,7 +8,15 @@ from models.major import Major
 from schemas.major import MajorResponse
 from http import HTTPStatus
 
-major_bp = Blueprint("major", __name__)
+from flask import Blueprint, request, Response
+import json
+from database import db
+from models.major import Major
+from schemas.major import MajorResponseSchema, MajorCreateSchema, MajorUpdateSchema
+
+
+major_bp = Blueprint('major_bp', __name__)
+
 
 connection_string = (
     "Driver={ODBC Driver 17 for SQL Server};"
@@ -111,3 +120,42 @@ def delete_major(major_id):
         return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
     finally:
         session.close()
+
+@major_bp.route("/", methods=["GET"])
+def get_majors():
+    majors = Major.query.all()
+    data = MajorResponseSchema(many=True).dump(majors)
+    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+
+@major_bp.route("/<string:major_id>", methods=["GET"])
+def get_major(major_id):
+    major = Major.query.get_or_404(major_id)
+    data = MajorResponseSchema().dump(major)
+    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+
+@major_bp.route("/", methods=["POST"])
+def create_major():
+    data = MajorCreateSchema().load(request.json)
+    major = Major(**data)
+    db.session.add(major)
+    db.session.commit()
+    result = MajorResponseSchema().dump(major)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json"), 201
+
+@major_bp.route("/<string:major_id>", methods=["PUT"])
+def update_major(major_id):
+    major = Major.query.get_or_404(major_id)
+    data = MajorUpdateSchema().load(request.json)
+    for key, value in data.items():
+        setattr(major, key, value)
+    db.session.commit()
+    result = MajorResponseSchema().dump(major)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json")
+
+@major_bp.route("/<string:major_id>", methods=["DELETE"])
+def delete_major(major_id):
+    major = Major.query.get_or_404(major_id)
+    db.session.delete(major)
+    db.session.commit()
+    return '', 204
+

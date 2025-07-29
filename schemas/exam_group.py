@@ -1,13 +1,12 @@
-from pydantic import BaseModel
-from typing import Optional
+from marshmallow import Schema, fields
 
-class ExamGroupCreate(BaseModel):
-    group_code: str
-    description: str  
+class ExamGroupCreateSchema(Schema):
+    group_code = fields.String(required=True)
+    description = fields.String(required=True)
 
-class ExamGroupUpdate(BaseModel):
-    description: Optional[str] = None  
+class ExamGroupUpdateSchema(Schema):
+    description = fields.String(required=True)
 
-class ExamGroupResponse(ExamGroupCreate):
-    class Config:
-        from_attributes = True
+class ExamGroupResponseSchema(Schema):
+    group_code = fields.String()
+    description = fields.String()

@@ -126,3 +126,58 @@ def delete_admission_score(data_id):
         return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
     finally:
         session.close()
+
+from flask import Blueprint, request, Response
+import json
+from database import db
+from models.admission_data import AdmissionScore
+from schemas.admission_data import (
+    AdmissionScoreResponseSchema,
+    AdmissionScoreCreateSchema,
+    AdmissionScoreUpdateSchema
+)
+
+admission_data_bp = Blueprint("admission_data_bp", __name__)
+
+@admission_data_bp.route('/', methods=['GET'])
+def get_admission_scores():
+    scores = AdmissionScore.query.all()
+    data = AdmissionScoreResponseSchema(many=True).dump(scores)
+    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+
+@admission_data_bp.route('/<int:score_id>', methods=['GET'])
+def get_admission_score(score_id):
+    score = AdmissionScore.query.get_or_404(score_id)
+    data = AdmissionScoreResponseSchema().dump(score)
+    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+
+@admission_data_bp.route('/', methods=['POST'])
+def create_admission_score():
+    data = request.get_json()
+    schema = AdmissionScoreCreateSchema()
+    score_data = schema.load(data)
+    score = AdmissionScore(**score_data)
+    db.session.add(score)
+    db.session.commit()
+    result = AdmissionScoreResponseSchema().dump(score)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json"), 201
+
+@admission_data_bp.route('/<int:score_id>', methods=['PUT'])
+def update_admission_score(score_id):
+    score = AdmissionScore.query.get_or_404(score_id)
+    data = request.get_json()
+    schema = AdmissionScoreUpdateSchema()
+    updated_data = schema.load(data)
+    for key, value in updated_data.items():
+        setattr(score, key, value)
+    db.session.commit()
+    result = AdmissionScoreResponseSchema().dump(score)
+    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json")
+
+@admission_data_bp.route('/<int:score_id>', methods=['DELETE'])
+def delete_admission_score(score_id):
+    score = AdmissionScore.query.get_or_404(score_id)
+    db.session.delete(score)
+    db.session.commit()
+    return '', 204
+

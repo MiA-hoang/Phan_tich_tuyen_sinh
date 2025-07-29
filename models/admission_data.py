@@ -1,19 +1,15 @@
+from database import db
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
-from database import Base
-
-class AdmissionData(Base):
+class AdmissionScore(db.Model):
     __tablename__ = "ADMISSION_SCORES"
 
-    data_id = Column(Integer, primary_key=True, autoincrement=True)  
-    university_id = Column(String, ForeignKey("universities.id"))     
-    major_id = Column(String, ForeignKey("majors.major_id"))          
-    group_code = Column(String, ForeignKey("exam_groups.group_code"))
-
-    year = Column(Integer)
-    min_score = Column(Float)
-    quota = Column(Integer)
-    note = Column(String)
-
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    university_id = db.Column(db.String(10), db.ForeignKey("UNIVERSITIES.id"), nullable=False)
+    major_id = db.Column(db.String(10), db.ForeignKey("MAJORS.major_id"), nullable=False)
+    year = db.Column(db.Integer)
+    min_score = db.Column(db.Float)
+    quota = db.Column(db.Integer)
+    note = db.Column(db.Text)
+    group_code = db.Column(db.String(10), db.ForeignKey("EXAM_GROUPS.group_code"))
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)

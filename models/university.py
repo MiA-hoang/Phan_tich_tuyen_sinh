@@ -1,11 +1,10 @@
-from sqlalchemy import Column, String, Text
-from database import Base
+from database import db
 
-class University(Base):
+class University(db.Model):
     __tablename__ = "UNIVERSITIES"
 
-    university_id = Column(String, primary_key=True)
-    name = Column(Text, nullable=False)
-    university_type = Column(Text)
-    city = Column(Text)
-    region = Column(Text)
+    id = db.Column(db.String(10), primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(50))
+    city = db.Column(db.String(100))
+    region = db.Column(db.String(50))

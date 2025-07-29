@@ -1,9 +1,8 @@
-from sqlalchemy import Column, String, Text
-from database import Base
+from database import db
 
-class Major(Base):
+class Major(db.Model):
     __tablename__ = "MAJORS"
 
-    major_id = Column(String, primary_key=True)
-    name = Column(Text, nullable=False)
-    field = Column(Text)
+    major_id = db.Column(db.String(10), primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    group_major = db.Column(db.String(100))
