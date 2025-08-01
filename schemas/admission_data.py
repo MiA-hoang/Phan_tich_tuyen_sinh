@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, pre_load
+from marshmallow import Schema, fields, post_dump
 
 class AdmissionScoreCreateSchema(Schema):
     university_id = fields.String(required=True)
@@ -6,22 +6,13 @@ class AdmissionScoreCreateSchema(Schema):
     group_code = fields.String(required=True)
     year = fields.Integer(required=True)
     min_score = fields.Float(required=True)
-    quota = fields.Integer(required=False)
-    note = fields.String(required=False)
-
-    @pre_load
-    def strip_fields(self, data, **kwargs):
-        for key in ['university_id', 'major_id', 'group_code']:
-            if key in data and isinstance(data[key], str):
-                data[key] = data[key].strip()
-        return data
-
+    quota = fields.Integer()
+    note = fields.String()
 
 class AdmissionScoreUpdateSchema(Schema):
     min_score = fields.Float()
     quota = fields.Integer()
     note = fields.String()
-
 
 class AdmissionScoreResponseSchema(Schema):
     id = fields.Integer()
@@ -34,3 +25,10 @@ class AdmissionScoreResponseSchema(Schema):
     note = fields.String()
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
+
+    @post_dump
+    def strip_fields(self, data, **kwargs):
+        for key, value in data.items():
+            if isinstance(value, str):
+                data[key] = value.strip()
+        return data
