@@ -1,19 +1,19 @@
 from marshmallow import Schema, fields, post_dump
 
-class UniversityCreateSchema(Schema):
+class UniversityCreate(Schema):
     id = fields.String(required=True)
     name = fields.String(required=True)
     type = fields.String(required=True)
     city = fields.String(required=True)
     region = fields.String(required=True)
 
-class UniversityUpdateSchema(Schema):
+class UniversityUpdate(Schema):
     name = fields.String()
     type = fields.String()
     city = fields.String()
     region = fields.String()
 
-class UniversityResponseSchema(Schema):
+class UniversityResponse(Schema):
     id = fields.String()
     name = fields.String()
     type = fields.String()

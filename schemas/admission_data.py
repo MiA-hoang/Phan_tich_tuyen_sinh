@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, post_dump
 
-class AdmissionScoreCreateSchema(Schema):
+class AdmissionScoreCreate(Schema):
     university_id = fields.String(required=True)
     major_id = fields.String(required=True)
     group_code = fields.String(required=True)
@@ -9,12 +9,12 @@ class AdmissionScoreCreateSchema(Schema):
     quota = fields.Integer()
     note = fields.String()
 
-class AdmissionScoreUpdateSchema(Schema):
+class AdmissionScoreUpdate(Schema):
     min_score = fields.Float()
     quota = fields.Integer()
     note = fields.String()
 
-class AdmissionScoreResponseSchema(Schema):
+class AdmissionScoreResponse(Schema):
     id = fields.Integer()
     university_id = fields.String()
     major_id = fields.String()

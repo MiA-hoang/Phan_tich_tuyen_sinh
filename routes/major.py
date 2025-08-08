@@ -1,39 +1,24 @@
-from flask import Blueprint, request, Response
-import json
-from database import db
-from models.major import Major
-from schemas.major import MajorResponseSchema, MajorCreateSchema, MajorUpdateSchema
+from flask import Blueprint, request
+from controllers.major import MajorController
 
-major_bp = Blueprint('major_bp', __name__, url_prefix="/api/majors")
+major_bp = Blueprint("major", __name__, url_prefix="/api/majors")
 
 @major_bp.route("/", methods=["GET"])
-def get_majors():
-    majors = Major.query.all()
-    data = MajorResponseSchema(many=True).dump(majors)
-    return Response(json.dumps(data, ensure_ascii=False), mimetype="application/json")
+def get_all():
+    return MajorController.get_all()
+
+@major_bp.route("/<string:id>", methods=["GET"])
+def get_by_id(id):
+    return MajorController.get_by_id(id)
 
 @major_bp.route("/", methods=["POST"])
-def create_major():
-    data = MajorCreateSchema().load(request.json)
-    major = Major(**data)
-    db.session.add(major)
-    db.session.commit()
-    result = MajorResponseSchema().dump(major)
-    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json"), 201
+def create():
+    return MajorController.create(request.json)
 
-@major_bp.route("/<string:major_id>", methods=["PUT"])
-def update_major(major_id):
-    major = Major.query.get_or_404(major_id)
-    data = MajorUpdateSchema().load(request.json)
-    for key, value in data.items():
-        setattr(major, key, value)
-    db.session.commit()
-    result = MajorResponseSchema().dump(major)
-    return Response(json.dumps(result, ensure_ascii=False), mimetype="application/json")
+@major_bp.route("/<string:id>", methods=["PUT"])
+def update(id):
+    return MajorController.update(id, request.json)
 
-@major_bp.route("/<string:major_id>", methods=["DELETE"])
-def delete_major(major_id):
-    major = Major.query.get_or_404(major_id)
-    db.session.delete(major)
-    db.session.commit()
-    return "", 204
+@major_bp.route("/<string:id>", methods=["DELETE"])
+def delete(id):
+    return MajorController.delete(id)

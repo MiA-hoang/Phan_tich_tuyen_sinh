@@ -1,15 +1,15 @@
 from marshmallow import Schema, fields, post_dump
 
-class MajorCreateSchema(Schema):
+class MajorCreate(Schema):
     major_id = fields.String(required=True)
     name = fields.String(required=True)
     group_major = fields.String(required=True)
 
-class MajorUpdateSchema(Schema):
+class MajorUpdate(Schema):
     name = fields.String()
     group_major = fields.String()
 
-class MajorResponseSchema(Schema):
+class MajorResponse(Schema):
     major_id = fields.String()
     name = fields.String()
     group_major = fields.String()
