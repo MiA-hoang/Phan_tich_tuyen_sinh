@@ -7,6 +7,10 @@ class MajorService:
         return Major.query.all()
 
     @staticmethod
+    def get_all_paginated(page, limit):
+        return Major.query.paginate(page=page, per_page=limit, error_out=False)
+
+    @staticmethod
     def get_by_id(major_id):
         return Major.query.get(major_id)
 

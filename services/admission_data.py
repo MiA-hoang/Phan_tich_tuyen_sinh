@@ -7,8 +7,15 @@ class AdmissionScoreService:
         return AdmissionScore.query.all()
 
     @staticmethod
-    def get_by_id(id):
-        return AdmissionScore.query.get(id)
+    def get_all_paginated(page, limit):
+        if not isinstance(page, int) or not isinstance(limit, int) or page < 1 or limit < 1:
+            page = 1
+            limit = 10
+        return AdmissionScore.query.paginate(page=page, per_page=limit, error_out=False)
+
+    @staticmethod
+    def get_by_id(Data_id):
+        return AdmissionScore.query.get(Data_id)
 
     @staticmethod
     def create(data):
@@ -18,8 +25,8 @@ class AdmissionScoreService:
         return score
 
     @staticmethod
-    def update(id, data):
-        score = AdmissionScore.query.get(id)
+    def update(Data_id, data):
+        score = AdmissionScore.query.get(Data_id)
         if score:
             for key, value in data.items():
                 setattr(score, key, value)
@@ -27,8 +34,8 @@ class AdmissionScoreService:
         return score
 
     @staticmethod
-    def delete(id):
-        score = AdmissionScore.query.get(id)
+    def delete(Data_id):
+        score = AdmissionScore.query.get(Data_id)
         if score:
             db.session.delete(score)
             db.session.commit()

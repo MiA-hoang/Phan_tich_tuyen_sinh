@@ -1,7 +1,12 @@
 from marshmallow import Schema, fields, post_dump
 
+class APIResponse(Schema):
+    success = fields.Boolean(default=True)
+    message = fields.String()
+    data = fields.Dict(keys=fields.Str(), values=fields.Raw())  
+
 class AdmissionScoreCreate(Schema):
-    university_id = fields.String(required=True)
+    id = fields.String(required=True)
     major_id = fields.String(required=True)
     group_code = fields.String(required=True)
     year = fields.Integer(required=True)
@@ -15,8 +20,8 @@ class AdmissionScoreUpdate(Schema):
     note = fields.String()
 
 class AdmissionScoreResponse(Schema):
-    id = fields.Integer()
-    university_id = fields.String()
+    Data_id = fields.Integer()
+    id = fields.String()
     major_id = fields.String()
     group_code = fields.String()
     year = fields.Integer()
@@ -32,3 +37,6 @@ class AdmissionScoreResponse(Schema):
             if isinstance(value, str):
                 data[key] = value.strip()
         return data
+    
+def get_swagger_schema(schema_class):
+    return schema_class().fields

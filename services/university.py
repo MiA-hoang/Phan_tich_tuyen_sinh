@@ -7,6 +7,10 @@ class UniversityService:
         return University.query.all()
 
     @staticmethod
+    def get_all_paginated(page, limit):
+        return University.query.paginate(page=page, per_page=limit, error_out=False)
+
+    @staticmethod
     def get_by_id(id):
         return University.query.get(id)
 

@@ -1,43 +1,50 @@
-from flask import jsonify
+from flask import jsonify, request
 from services.university import UniversityService
-from schemas.university import UniversityCreate, UniversityUpdate, UniversityResponse
+from schemas.university import UniversityCreate, UniversityUpdate, UniversityResponse, APIResponse
 from marshmallow import ValidationError
+
+def make_response(success, message, data=None, status=200):
+    response = APIResponse().dump({"success": success, "message": message, "data": data})
+    return jsonify(response), status
 
 class UniversityController:
     @staticmethod
     def get_all():
-        return jsonify(UniversityResponse(many=True).dump(UniversityService.get_all())), 200
+        page = request.args.get('page', 1, type=int)
+        limit = request.args.get('limit', 10, type=int)
+        pagination = UniversityService.get_all_paginated(page, limit)
+        result = UniversityResponse(many=True).dump(pagination.items)
+        return make_response(True, "List of universities", {
+            "items": result,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
 
     @staticmethod
     def get_by_id(id):
         university = UniversityService.get_by_id(id)
-        if not university:
-            return jsonify({"message": "University not found"}), 404
-        return jsonify(UniversityResponse().dump(university)), 200
+        return make_response(True, "University details", UniversityResponse().dump(university)) if university else make_response(False, "University not found", None, 404)
 
     @staticmethod
     def create(data):
         try:
             validated = UniversityCreate().load(data)
             university = UniversityService.create(validated)
-            return jsonify(UniversityResponse().dump(university)), 201
+            return make_response(True, "Post created successfully", UniversityResponse().dump(university), 201)
         except ValidationError as err:
-            return jsonify(err.messages), 400
+            return make_response(False, err.messages, None, 400)
 
     @staticmethod
     def update(id, data):
         try:
             validated = UniversityUpdate().load(data)
             university = UniversityService.update(id, validated)
-            if not university:
-                return jsonify({"message": "University not found"}), 404
-            return jsonify(UniversityResponse().dump(university)), 200
+            return make_response(True, "University updated successfully", UniversityResponse().dump(university)) if university else make_response(False, "University not found", None, 404)
         except ValidationError as err:
-            return jsonify(err.messages), 400
+            return make_response(False, err.messages, None, 400)
 
     @staticmethod
     def delete(id):
         university = UniversityService.delete(id)
-        if not university:
-            return jsonify({"message": "University not found"}), 404
-        return jsonify({"message": "Deleted successfully"}), 200
+        return make_response(True, "Deleted successfully", None) if university else make_response(False, "University not found", None, 404)

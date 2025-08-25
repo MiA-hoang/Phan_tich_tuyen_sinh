@@ -7,6 +7,10 @@ class ExamGroupService:
         return ExamGroup.query.all()
 
     @staticmethod
+    def get_all_paginated(page, limit):
+        return ExamGroup.query.paginate(page=page, per_page=limit, error_out=False)
+
+    @staticmethod
     def get_by_code(group_code):
         return ExamGroup.query.get(group_code)
 

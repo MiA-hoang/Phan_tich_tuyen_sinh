@@ -1,5 +1,10 @@
 from marshmallow import Schema, fields, post_dump
 
+class APIResponse(Schema):
+    success = fields.Boolean(default=True)
+    message = fields.String()
+    data = fields.Dict(keys=fields.Str(), values=fields.Raw())  
+
 class MajorCreate(Schema):
     major_id = fields.String(required=True)
     name = fields.String(required=True)
@@ -20,3 +25,6 @@ class MajorResponse(Schema):
             if isinstance(value, str):
                 data[key] = value.strip()
         return data
+
+def get_swagger_schema(schema_class):
+    return schema_class().fields
